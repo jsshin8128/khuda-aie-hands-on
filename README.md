@@ -38,7 +38,7 @@ uvicorn app.main:app --reload
 | 1주차 | HTTP 요청/응답 구조 확인 (에코 서버)       | ✅ 구현  |
 | 2주차 | Pydantic 스키마로 입력/출력 계약 고정      | ✅ 구현  |
 | 3주차 | DB 저장/조회 (SQLite + SQLAlchemy) | ✅ 구현 |
-| 4주차 | 레이어드 아키텍처 + LangChain 연동       | 🔜 예정 |
+| 4주차 | 레이어드 아키텍처 + LangChain 연동       | ✅ 구현  |
 | 5주차 | async 처리로 동시 요청 대응             | 🔜 예정 |
 
 
@@ -62,11 +62,16 @@ uvicorn app.main:app --reload
 ```
 AIE/
 ├── app/
-│   ├── main.py          # 실습용 (TODO [1]~[5])
-│   ├── main_solution.py # 정답용
-│   ├── models.py        # ORM
-│   ├── schemas.py       # Pydantic 스키마
-│   └── database.py      # SQLite 연결
+│   ├── main.py              # 진입점
+│   ├── routers/
+│   │   └── summarize.py     # HTTP 요청 수신 (4주차~)
+│   ├── services/
+│   │   └── summary_service.py   # 비즈니스 로직 + LLM 호출 (4주차~)
+│   ├── repositories/
+│   │   └── summary_repository.py  # DB 접근 (4주차~)
+│   ├── models.py            # SQLAlchemy ORM
+│   ├── schemas.py           # Pydantic 스키마
+│   └── database.py          # SQLite 연결
 ├── docs/
 │   ├── setup.md
 │   ├── roadmap.md
@@ -79,6 +84,7 @@ AIE/
 │   ├── week4.sh
 │   ├── week5.sh
 │   └── benchmark_index.py   # 인덱스 실습 (docs/db-schema.md 참고)
+├── .env.example             # 환경변수 템플릿 (OPENAI_API_KEY)
 ├── requirements.txt
 └── README.md
 ```

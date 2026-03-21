@@ -319,7 +319,14 @@ curl -X POST http://localhost:8000/summarize \
 ./scripts/week2.sh
 ```
 
-`scripts/week1.sh`, `week2.sh` 는 바로 실행 가능하고, `week3.sh` ~ `week5.sh` 는 해당 주차가 되면 주석을 해제해서 사용하시면 됩니다.
+`scripts/week1.sh` ~ `week4.sh` 는 바로 실행 가능하고, `week5.sh` 는 해당 주차가 되면 주석을 해제해서 사용하시면 됩니다.
+
+> **4주차부터는 OpenAI API 키가 필요합니다.** 아래 명령어로 `.env` 파일을 만들고 키를 넣어 주세요.
+>
+> ```bash
+> cp .env.example .env
+> # .env 파일을 열어서 OPENAI_API_KEY=sk-... 부분에 실제 키를 입력하세요
+> ```
 
 ---
 

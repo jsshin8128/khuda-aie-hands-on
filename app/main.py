@@ -1,27 +1,31 @@
 """
-3주차: 요약 결과를 DB에 저장하고 다시 꺼냅니다.
+4주차: 레이어드 아키텍처 — 얇아진 진입점.
 
-실습: TODO [1]~[5]를 순서대로 채운 뒤 서버 실행 → /docs 또는 scripts/week3.sh 로 확인.
+3주차 main.py 에는 HTTP 처리 · 비즈니스 로직 · DB 접근이 한 파일에 섞여 있었습니다.
+4주차에서는 각 책임을 분리합니다.
+
+  main.py         → 앱 생성 + 라우터 등록만 담당  (지금 이 파일)
+  routers/        → HTTP 요청 수신 · 응답 반환
+  services/       → 비즈니스 로직 · LLM 호출
+  repositories/   → DB 접근
+
+외부 API 동작(엔드포인트 경로, 스키마)은 3주차와 완전히 동일합니다.
+내부 구조만 바뀌었습니다.
+
+실습: TODO [1]을 채운 뒤 uvicorn 으로 서버를 실행하세요.
+      → scripts/week4.sh 로 동작을 확인합니다.
 """
 
-import json
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
-from app import database, models, schemas
-
-
-def _created_at_to_iso(created_at: str) -> str:
-    """SQLite 저장 시각을 API용 ISO 8601 형식으로 변환."""
-    return created_at.replace(" ", "T", 1) + "Z" if created_at and " " in created_at else (created_at or "")
+from app import database, models
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # TODO [1] 앱 기동 시 테이블 생성. 힌트: models.Base.metadata.create_all(bind=...)
+    # 서버 시작 시 summaries 테이블이 없으면 자동으로 생성합니다.
     models.Base.metadata.create_all(bind=database.engine)
     yield
 
@@ -34,48 +38,16 @@ app = FastAPI(
 )
 
 
-# TODO [2] SessionLocal()로 세션 생성 → yield db → finally: db.close()
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 
-def _build_dummy_response() -> schemas.SummaryResponse:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return schemas.SummaryResponse(
-        main_points=["스키마 적용됨", "3주차 DB 저장"],
-        core_summary="더미 요약 (3주차에서 DB에 저장 후 반환)",
-        structure_summary="요청→검증→저장→응답",
-        practical_insights=["content_text 필수", "output_format은 json만"],
-        meta=schemas.SummaryMeta(prompt_version="v1.0", generated_at=now),
-    )
-
-
-@app.post("/summarize", response_model=schemas.SummaryResponseWithId)
-def summarize(body: schemas.SummaryRequest, db: Session = Depends(get_db)) -> schemas.SummaryResponseWithId:
-    # TODO [3] response 생성 → Summary 행 만들어 db.add/commit/refresh → SummaryResponseWithId(id=row.id, ...) 반환
-    response = _build_dummy_response()
-    raise NotImplementedError("TODO [3]")
-
-
-@app.get("/summaries", response_model=list[schemas.SummaryListItem])
-def list_summaries(db: Session = Depends(get_db)) -> list[schemas.SummaryListItem]:
-    # TODO [4] 전체 조회 후 최신순 정렬, SummaryListItem 리스트로 반환 (created_at은 _created_at_to_iso 사용)
-    raise NotImplementedError("TODO [4]")
-
-
-@app.get("/summaries/{id}", response_model=schemas.SummaryDetail)
-def get_summary(id: int, db: Session = Depends(get_db)) -> schemas.SummaryDetail:
-    # TODO [5] id로 조회 → 없으면 404 / 있으면 output_json 파싱해 SummaryDetail 반환
-    row = db.query(models.Summary).filter(models.Summary.id == id).first()
-    if not row:
-        raise HTTPException(status_code=404, detail="Summary not found")
-    raise NotImplementedError("TODO [5]")
+# TODO [1] Router 를 등록하세요.
+#
+#   routers/summarize.py 에서 만든 router 를 이 앱에 연결합니다.
+#   이 한 줄로 POST /summarize, GET /summaries, GET /summaries/{id} 가 모두 활성화됩니다.
+#
+#   힌트:
+#     from app.routers.summarize import router
+#     app.include_router(router)

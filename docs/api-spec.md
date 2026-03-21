@@ -146,10 +146,8 @@ Request·Response 스키마를 적용합니다. 스키마를 만족하지 않는
 
 | Field | Type | Required | Description | Example |
 |-------|------|:--------:|-------------|---------|
-| `main_points` | string[] | - | 핵심 포인트 목록 | `["...", "..."]` |
-| `core_summary` | string | - | 한 단락 핵심 요약 | `"..."` |
-| `structure_summary` | string | - | 글 구조 설명 | `"..."` |
-| `practical_insights` | string[] | - | 실무 인사이트 목록 | `["..."]` |
+| `summary` | string | - | 2~3문장 핵심 요약 | `"..."` |
+| `key_points` | string[] | - | 핵심 포인트 목록 | `["...", "..."]` |
 | `meta.prompt_version` | string | - | 어떤 버전의 프롬프트로 생성했는지 | `"v1.0"` |
 | `meta.generated_at` | string | - | 생성 시각 (ISO 8601 형식) | `"2024-01-15T10:30:00Z"` |
 
@@ -165,10 +163,8 @@ Request·Response 스키마를 적용합니다. 스키마를 만족하지 않는
 **Example Response (200)**
 ```json
 {
-  "main_points": ["...", "..."],
-  "core_summary": "...",
-  "structure_summary": "...",
-  "practical_insights": ["..."],
+  "summary": "...",
+  "key_points": ["...", "..."],
   "meta": {
     "prompt_version": "v1.0",
     "generated_at": "2024-01-15T10:30:00Z"
@@ -232,10 +228,8 @@ Request·Response 스키마를 적용합니다. 스키마를 만족하지 않는
 ```json
 {
   "id": 1,
-  "main_points": ["...", "..."],
-  "core_summary": "...",
-  "structure_summary": "...",
-  "practical_insights": ["..."],
+  "summary": "...",
+  "key_points": ["...", "..."],
   "meta": {
     "prompt_version": "v1.0",
     "generated_at": "2024-01-15T10:30:00Z"
@@ -315,10 +309,8 @@ Host: localhost:8000
 | `id` | integer | - | 요약 고유 번호 | `1` |
 | `title` | string \| null | - | 글 제목 | `"FastAPI 완벽 가이드"` |
 | `content_text` | string | - | 요약 대상 원문 | `"FastAPI는..."` |
-| `main_points` | array | - | 핵심 포인트 목록 | `[...]` |
-| `core_summary` | string | - | 한 단락 핵심 요약 | `"..."` |
-| `structure_summary` | string | - | 글 구조 설명 | `"..."` |
-| `practical_insights` | array | - | 실무 인사이트 목록 | `[...]` |
+| `summary` | string | - | 2~3문장 핵심 요약 | `"..."` |
+| `key_points` | array | - | 핵심 포인트 목록 | `[...]` |
 | `meta` | object | - | prompt_version, generated_at 등 | `{ "prompt_version": "v1.0", "generated_at": "..." }` |
 | `created_at` | string | - | 저장된 시각 | `"2024-01-15T10:30:00Z"` |
 
@@ -334,10 +326,8 @@ Host: localhost:8000
   "id": 1,
   "title": "FastAPI 완벽 가이드",
   "content_text": "FastAPI는...",
-  "main_points": [...],
-  "core_summary": "...",
-  "structure_summary": "...",
-  "practical_insights": [...],
+  "summary": "...",
+  "key_points": ["...", "..."],
   "meta": {
     "prompt_version": "v1.0",
     "generated_at": "2024-01-15T10:30:00Z"
@@ -361,9 +351,10 @@ Host: localhost:8000
 
 | 구분 | 3주차 | 4주차 |
 |------|--------|--------|
-| LLM 호출 위치 | 라우터 함수 안 | Service 클래스 |
-| DB 접근 위치 | 라우터 함수 안 | Repository 클래스 |
-| 저장 조건 | LLM 결과 그대로 저장 | Response 스키마 검증 통과분만 저장 |
+| 요약 생성 | 더미 데이터 (LLM 미사용) | LangChain으로 실제 LLM 호출 |
+| 로직 위치 | 라우터 함수 안 | Service 레이어 |
+| DB 접근 위치 | 라우터 함수 안 | Repository 레이어 |
+| 저장 조건 | 더미 응답 그대로 저장 | Pydantic 검증 통과분만 저장 |
 
 **API 목록 (구조는 3주차와 동일)**
 

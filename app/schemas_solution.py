@@ -17,10 +17,8 @@ class SummaryMeta(BaseModel):
 
 
 class SummaryResponse(BaseModel):
-    main_points: list[str]
-    core_summary: str
-    structure_summary: str
-    practical_insights: list[str]
+    summary: str
+    key_points: list[str]
     meta: SummaryMeta
 
 
@@ -38,9 +36,7 @@ class SummaryDetail(BaseModel):
     id: int  # GET /summaries/{id} 단건 응답용
     title: str | None
     content_text: str
-    main_points: list[str]
-    core_summary: str
-    structure_summary: str
-    practical_insights: list[str]
+    summary: str
+    key_points: list[str]
     meta: SummaryMeta
     created_at: str

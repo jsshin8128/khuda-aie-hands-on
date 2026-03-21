@@ -49,7 +49,7 @@
 **구현 포인트:**
 
 - `SummaryRequest` Pydantic 모델: `content_text`(필수), `title`, `output_format`
-- `SummaryResponse` Pydantic 모델: `main_points`, `core_summary`, `structure_summary`, `practical_insights`, `meta`
+- `SummaryResponse` Pydantic 모델: `summary`, `key_points`, `meta`
 - 계약을 만족하지 않는 입력 → 로직 실행 전 422 반환 (FastAPI가 자동 처리합니다)
 
 **확인하셔야 할 사실:**
@@ -154,6 +154,7 @@ app/
 │   └── summary_service.py
 ├── repositories/
 │   └── summary_repository.py
+├── models.py
 ├── schemas.py
 └── database.py
 ```
