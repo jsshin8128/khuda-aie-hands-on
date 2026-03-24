@@ -74,6 +74,8 @@ def create_summary(body: schemas.SummaryRequest, db: Session) -> schemas.Summary
     #
     #   ② LLM 응답(문자열)을 dict 로 파싱
     #      data = json.loads(result.content)
+    #      ※ LLM 이 JSON 이 아닌 텍스트를 반환하면 json.loads 가 ValueError 를 던집니다.
+    #         temperature=0 과 "순수 JSON만 반환하세요" 지시로 발생 빈도를 줄일 수 있습니다.
     #
     #   ③ Pydantic 으로 검증 (필드가 빠지거나 타입이 다르면 여기서 에러)
     #      now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
