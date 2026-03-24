@@ -1,6 +1,8 @@
 """4주차 정답: Router 레이어 — HTTP 요청 수신 및 Service 위임."""
 
-from fastapi import APIRouter, Depends
+from typing import Literal
+
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
 from app import database, schemas
@@ -19,7 +21,13 @@ def get_db():
 
 
 @router.post("/summarize", response_model=schemas.SummaryResponseWithId)
-def summarize(body: schemas.SummaryRequest, db: Session = Depends(get_db)) -> schemas.SummaryResponseWithId:
+def summarize(
+    content_text: str = Form(...),
+    title: str | None = Form(None),
+    output_format: Literal["json"] = Form("json"),
+    db: Session = Depends(get_db),
+) -> schemas.SummaryResponseWithId:
+    body = schemas.SummaryRequest(content_text=content_text, title=title, output_format=output_format)
     return summary_service.create_summary(body, db)
 
 

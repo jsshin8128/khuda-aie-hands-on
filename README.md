@@ -49,10 +49,11 @@ uvicorn app.main:app --reload
 
 | 문서                            | 설명               |
 | ----------------------------- | ---------------- |
-| [개발 환경 세팅 가이드](docs/setup.md) | 환경 구성 및 실행 방법    |
-| [5주 개발 로드맵](docs/roadmap.md)  | 주차별 학습·구현 계획     |
-| [API 명세](docs/api-spec.md)    | 엔드포인트 및 요청/응답 스펙 |
-| [DB 스키마](docs/db-schema.md)   | 데이터베이스 테이블 정의    |
+| [개발 환경 세팅 가이드](docs/setup.md)       | 환경 구성 및 실행 방법                  |
+| [5주 개발 로드맵](docs/roadmap.md)          | 주차별 학습·구현 계획                   |
+| [API 명세](docs/api-spec.md)             | 엔드포인트 및 요청/응답 스펙               |
+| [DB 스키마](docs/db-schema.md)            | 데이터베이스 테이블 정의                  |
+| [LangChain 가이드](docs/langchain-guide.md) | 추상화·표준화·체이닝 개념               |
 
 
 ---

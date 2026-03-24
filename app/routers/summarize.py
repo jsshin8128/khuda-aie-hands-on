@@ -18,11 +18,15 @@ Router 가 얇을수록 테스트와 유지보수가 쉬워집니다.
 #     from fastapi import APIRouter
 #     router = APIRouter()
 
-from fastapi import Depends
+from typing import Literal
+
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
 from app import database, schemas
 from app.services import summary_service
+
+router = APIRouter()
 
 
 def get_db():
@@ -36,12 +40,17 @@ def get_db():
 
 # TODO [2] POST /summarize 엔드포인트를 구현하세요.
 #
-#   Router 에서 할 일은 딱 한 줄입니다:
-#     return summary_service.create_summary(body, db)
+#   Swagger에서 블로그 글을 바로 붙여넣을 수 있도록 Form 방식으로 받습니다.
 #
 #   힌트:
 #     @router.post("/summarize", response_model=schemas.SummaryResponseWithId)
-#     def summarize(body: schemas.SummaryRequest, db: Session = Depends(get_db)):
+#     def summarize(
+#         content_text: str = Form(...),
+#         title: str | None = Form(None),
+#         output_format: Literal["json"] = Form("json"),
+#         db: Session = Depends(get_db),
+#     ):
+#         body = schemas.SummaryRequest(content_text=content_text, title=title, output_format=output_format)
 #         return summary_service.create_summary(body, db)
 
 
