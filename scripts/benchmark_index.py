@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_FILE = PROJECT_ROOT / "summary.db"
 TARGET_ROWS = 100_000  # 인덱스 차이가 보이도록 행 수 확대
 RUNS = 5  # 여러 번 측정 후 평균
-QUERY = "SELECT id, title, created_at FROM summaries ORDER BY created_at DESC"
+QUERY = "SELECT id, url, title FROM summaries ORDER BY created_at DESC"
 MINIMAL_JSON = '{"main_points":[],"core_summary":"","structure_summary":"","practical_insights":[],"meta":{"prompt_version":"v1.0","generated_at":"2024-01-01T00:00:00Z"}}'
 
 
@@ -34,8 +34,8 @@ def main() -> None:
     print(f"더미 {TARGET_ROWS}건 삽입 중...")
     for i in range(TARGET_ROWS):
         cur.execute(
-            "INSERT INTO summaries (title, content_text, output_json, prompt_version, created_at) VALUES (?, ?, ?, ?, datetime('now', ?))",
-            (None, "x", MINIMAL_JSON, "v1.0", f"-{i} seconds"),
+            "INSERT INTO summaries (url, title, content_text, output_json, prompt_version, created_at) VALUES (?, ?, ?, ?, ?, datetime('now', ?))",
+            (f"https://example.com/post-{i}", None, "x", MINIMAL_JSON, "v2.0", f"-{i} seconds"),
         )
     conn.commit()
     print(f"총 {TARGET_ROWS}건 준비됨.\n")

@@ -1,6 +1,9 @@
-"""3주차: summaries 테이블 ORM (docs/db-schema.md와 1:1).
+"""5주차: summaries 테이블 ORM — url 컬럼 추가.
 
-실습: TODO [1]~[2]를 채워 Summary 모델을 완성하세요.
+4주차 models.py 에서 달라지는 점:
+  - url 컬럼이 추가됩니다. 사용자가 보낸 URL을 저장합니다.
+
+실습: TODO [1]을 채워 url 컬럼을 추가하세요.
 """
 
 from sqlalchemy import Column, Integer, Text, text
@@ -9,14 +12,23 @@ from app.database import Base
 
 
 class Summary(Base):
-    # TODO [1] 테이블 이름을 "summaries"로 지정. 힌트: __tablename__ = ...
-    pass
+    __tablename__ = "summaries"
 
-    # TODO [2] 아래 컬럼을 Column으로 정의하세요.
-    #   - id       : Integer, primary_key=True, autoincrement=True
-    #   - title    : Text, nullable=True
-    #   - content_text  : Text, nullable=False
-    #   - output_json   : Text, nullable=False
-    #   - prompt_version: Text, nullable=False
-    #   - created_at    : Text, nullable=False,
-    #                     server_default=text("(datetime('now'))")
+    id           = Column(Integer, primary_key=True, autoincrement=True)
+
+    # TODO [1] url 컬럼을 추가하세요.
+    #
+    #   사용자가 보낸 URL을 저장합니다. 크롤링에 실패했을 때를 대비해 nullable=True 로 둡니다.
+    #
+    #   힌트:
+    #     url = Column(Text, nullable=True)
+
+    title        = Column(Text, nullable=True)
+    content_text = Column(Text, nullable=False)
+    output_json  = Column(Text, nullable=False)
+    prompt_version = Column(Text, nullable=False)
+    created_at   = Column(
+        Text,
+        nullable=False,
+        server_default=text("(datetime('now'))"),
+    )

@@ -1,4 +1,4 @@
-"""4주차 정답: 레이어드 아키텍처 - 얇아진 진입점."""
+"""5주차 정답: 진입점 — 비동기 테이블 생성."""
 
 from contextlib import asynccontextmanager
 
@@ -10,7 +10,9 @@ from app.routers.summarize_solution import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    models.Base.metadata.create_all(bind=database.engine)
+    # 비동기 엔진에서는 run_sync 를 통해 동기 함수(create_all)를 실행합니다.
+    async with database.engine.begin() as conn:
+        await conn.run_sync(models.Base.metadata.create_all)
     yield
 
 

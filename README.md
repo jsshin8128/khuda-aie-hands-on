@@ -2,12 +2,12 @@
 
 AI 엔지니어링 트랙 실습에 오신 것을 환영합니다!
 
-1~5주차는 백엔드의 기초에 대해서 공부합니다.
+1~5주차는 백엔드의 기본기를 다지고, LLM을 연동하는 방법에 대해 공부합니다.
 하나의 주제로 매 주차별로 코드를 추가, 수정하면서 실습이 진행됩니다.
 따라서, 이전 주차의 내용을 놓치면 다음 주차의 내용에 대한 이해가 어렵습니다.
 **이 점 반드시 유의하여 실습에 적극적으로 참여 해주시길 바랍니다.**
 
-실습에서는 파이썬과 FastAPI를 사용하여 테크 블로그 요약 챗봇 서버를 구현해보려고 합니다.  
+실습에서는 파이썬과 FastAPI, 그리고 LangChain을 사용하여 기술 블로그 요약 API 서버를 구현해보려고 합니다.  
 여러분은 5주 동안 "요청을 받고 응답을 돌려준다"에서 시작해서 "동시에 여러 요청을 처리하는 구조화된 시스템"까지 단계별로 디벨롭 해보는 과정을 경험합니다.
 
 ---
@@ -39,7 +39,7 @@ uvicorn app.main:app --reload
 | 2주차 | Pydantic 스키마로 입력/출력 계약 고정      | ✅ 구현  |
 | 3주차 | DB 저장/조회 (SQLite + SQLAlchemy) | ✅ 구현 |
 | 4주차 | 레이어드 아키텍처 + LangChain 연동       | ✅ 구현  |
-| 5주차 | async 처리로 동시 요청 대응             | 🔜 예정 |
+| 5주차 | async 처리로 동시 요청 대응             | ✅ 구현 |
 
 
 ---
@@ -53,7 +53,8 @@ uvicorn app.main:app --reload
 | [5주 개발 로드맵](docs/roadmap.md)          | 주차별 학습·구현 계획                   |
 | [API 명세](docs/api-spec.md)             | 엔드포인트 및 요청/응답 스펙               |
 | [DB 스키마](docs/db-schema.md)            | 데이터베이스 테이블 정의                  |
-| [LangChain 가이드](docs/langchain-guide.md) | 추상화·표준화·체이닝 개념               |
+| [LangChain 가이드](docs/langchain-guide.md) | 추상화·표준화·체이닝 개념 가이드         |
+| [async/await 가이드](docs/async-guide.md)   | 비동기 처리 개념 가이드                 |
 
 
 ---
@@ -77,7 +78,9 @@ AIE/
 │   ├── setup.md
 │   ├── roadmap.md
 │   ├── api-spec.md
-│   └── db-schema.md
+│   ├── db-schema.md
+│   ├── langchain-guide.md
+│   └── async-guide.md
 ├── scripts/
 │   ├── week1.sh
 │   ├── week2.sh

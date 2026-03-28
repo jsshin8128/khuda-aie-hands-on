@@ -1,4 +1,4 @@
-"""2·3주차 정답: API 요청/응답 스키마 (Pydantic)."""
+"""5주차 정답: API 요청/응답 스키마 (Pydantic)."""
 
 from typing import Literal
 
@@ -6,8 +6,7 @@ from pydantic import BaseModel
 
 
 class SummaryRequest(BaseModel):
-    content_text: str
-    title: str | None = None
+    url: str
     output_format: Literal["json"]
 
 
@@ -17,6 +16,9 @@ class SummaryMeta(BaseModel):
 
 
 class SummaryResponse(BaseModel):
+    recommended_for: str
+    difficulty: Literal["초급", "중급", "고급"]
+    read_time: int
     summary: str
     key_points: list[str]
     meta: SummaryMeta
@@ -29,14 +31,28 @@ class SummaryResponseWithId(SummaryResponse):
 class SummaryListItem(BaseModel):
     id: int
     title: str | None
-    created_at: str
+    url: str  # 5주차: created_at 대신 url
 
 
-class SummaryDetail(BaseModel):
-    id: int  # GET /summaries/{id} 단건 응답용
+class SummaryDetailResponse(BaseModel):
+    id: int
     title: str | None
+    url: str
     content_text: str
+    recommended_for: str
+    difficulty: str
+    read_time: int
     summary: str
     key_points: list[str]
     meta: SummaryMeta
     created_at: str
+
+
+class BatchSummaryRequest(BaseModel):
+    urls: list[str]
+    output_format: Literal["json"]
+
+
+class BatchSummaryResponse(BaseModel):
+    results: list[SummaryResponseWithId]
+    failed: list[dict]  # {"url": "...", "error": "..."}
