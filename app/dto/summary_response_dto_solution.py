@@ -1,13 +1,8 @@
-"""5주차 정답: API 요청/응답 스키마 (Pydantic)."""
+"""5주차 정답: API 응답 스키마 (Pydantic)."""
 
 from typing import Literal
 
 from pydantic import BaseModel
-
-
-class SummaryRequest(BaseModel):
-    url: str
-    output_format: Literal["json"]
 
 
 class SummaryMeta(BaseModel):
@@ -46,11 +41,6 @@ class SummaryDetailResponse(BaseModel):
     key_points: list[str]
     meta: SummaryMeta
     created_at: str
-
-
-class BatchSummaryRequest(BaseModel):
-    urls: list[str]
-    output_format: Literal["json"]
 
 
 class BatchSummaryResponse(BaseModel):

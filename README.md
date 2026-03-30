@@ -65,15 +65,19 @@ uvicorn app.main:app --reload
 AIE/
 ├── app/
 │   ├── main.py              # 진입점
-│   ├── routers/
-│   │   └── summarize.py     # HTTP 요청 수신 (4주차~)
+│   ├── controllers/
+│   │   └── summary_controller.py  # HTTP 요청 수신 (4주차~)
 │   ├── services/
-│   │   └── summary_service.py   # 비즈니스 로직 + LLM 호출 (4주차~)
+│   │   └── summary_service.py     # 비즈니스 로직 + LLM 호출 (4주차~)
 │   ├── repositories/
 │   │   └── summary_repository.py  # DB 접근 (4주차~)
-│   ├── models.py            # SQLAlchemy ORM
-│   ├── schemas.py           # Pydantic 스키마
-│   └── database.py          # SQLite 연결
+│   ├── domain/
+│   │   └── summary.py       # SQLAlchemy ORM
+│   ├── dto/
+│   │   ├── summary_request_dto.py   # Pydantic 요청 스키마
+│   │   └── summary_response_dto.py  # Pydantic 응답 스키마
+│   └── database/
+│       └── connection.py    # SQLite 연결
 ├── docs/
 │   ├── setup.md
 │   ├── roadmap.md

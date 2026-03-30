@@ -12,7 +12,16 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models, schemas
+from app.domain import summary as models
+from app.dto.summary_request_dto import BatchSummaryRequest, SummaryRequest
+from app.dto.summary_response_dto import (
+    BatchSummaryResponse,
+    SummaryDetailResponse,
+    SummaryListItem,
+    SummaryMeta,
+    SummaryResponse,
+    SummaryResponseWithId,
+)
 from app.repositories import summary_repository
 
 load_dotenv()
@@ -64,7 +73,7 @@ def _created_at_to_iso(created_at: str) -> str:
     return created_at.replace(" ", "T", 1) + "Z" if created_at and " " in created_at else (created_at or "")
 
 
-async def create_summary(body: schemas.SummaryRequest, db: AsyncSession) -> schemas.SummaryResponseWithId:
+async def create_summary(body: SummaryRequest, db: AsyncSession) -> SummaryResponseWithId:
     # ① URL 크롤링
     content_text, title = await fetch_url(body.url)
 
@@ -77,13 +86,13 @@ async def create_summary(body: schemas.SummaryRequest, db: AsyncSession) -> sche
 
     # ④ Pydantic 검증: 필드가 빠지거나 타입이 다르면 여기서 에러가 납니다.
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    response = schemas.SummaryResponse(
+    response = SummaryResponse(
         recommended_for=data["recommended_for"],
         difficulty=data["difficulty"],
         read_time=data["read_time"],
         summary=data["summary"],
         key_points=data["key_points"],
-        meta=schemas.SummaryMeta(prompt_version="v2.0", generated_at=now),
+        meta=SummaryMeta(prompt_version="v2.0", generated_at=now),
     )
 
     # ⑤ DB 저장
@@ -97,24 +106,24 @@ async def create_summary(body: schemas.SummaryRequest, db: AsyncSession) -> sche
     await summary_repository.save(db, row)
 
     # ⑥ id 를 포함해 반환
-    return schemas.SummaryResponseWithId(id=row.id, **response.model_dump())
+    return SummaryResponseWithId(id=row.id, **response.model_dump())
 
 
-async def list_summaries(db: AsyncSession) -> list[schemas.SummaryListItem]:
+async def list_summaries(db: AsyncSession) -> list[SummaryListItem]:
     rows = await summary_repository.list_all(db)
     return [
-        schemas.SummaryListItem(id=r.id, title=r.title, url=r.url or "")
+        SummaryListItem(id=r.id, title=r.title, url=r.url or "")
         for r in rows
     ]
 
 
-async def get_summary(id: int, db: AsyncSession) -> schemas.SummaryDetailResponse:
+async def get_summary(id: int, db: AsyncSession) -> SummaryDetailResponse:
     row = await summary_repository.get_by_id(db, id)
     if not row:
         raise HTTPException(status_code=404, detail="Summary not found")
 
     data = json.loads(row.output_json)
-    return schemas.SummaryDetailResponse(
+    return SummaryDetailResponse(
         id=row.id,
         title=row.title,
         url=row.url or "",
@@ -124,19 +133,19 @@ async def get_summary(id: int, db: AsyncSession) -> schemas.SummaryDetailRespons
         read_time=data["read_time"],
         summary=data["summary"],
         key_points=data["key_points"],
-        meta=schemas.SummaryMeta(**data["meta"]),
+        meta=SummaryMeta(**data["meta"]),
         created_at=_created_at_to_iso(row.created_at),
     )
 
 
-async def create_batch(body: schemas.BatchSummaryRequest, db: AsyncSession) -> schemas.BatchSummaryResponse:
+async def create_batch(body: BatchSummaryRequest, db: AsyncSession) -> BatchSummaryResponse:
     """여러 URL 을 asyncio.gather 로 동시에 처리합니다.
 
     return_exceptions=True: 하나가 실패해도 나머지는 계속 실행됩니다.
     실패한 URL 은 failed 에, 성공한 URL 은 results 에 담겨 반환됩니다.
     """
-    async def process_one(url: str) -> schemas.SummaryResponseWithId:
-        single_body = schemas.SummaryRequest(url=url, output_format=body.output_format)
+    async def process_one(url: str) -> SummaryResponseWithId:
+        single_body = SummaryRequest(url=url, output_format=body.output_format)
         return await create_summary(single_body, db)
 
     tasks = [process_one(url) for url in body.urls]
@@ -149,4 +158,4 @@ async def create_batch(body: schemas.BatchSummaryRequest, db: AsyncSession) -> s
         else:
             results.append(outcome)
 
-    return schemas.BatchSummaryResponse(results=results, failed=failed)
+    return BatchSummaryResponse(results=results, failed=failed)

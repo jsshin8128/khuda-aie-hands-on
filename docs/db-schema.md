@@ -238,7 +238,7 @@ sqlite3 summary.db "DELETE FROM sqlite_sequence WHERE name='summaries';"
 
 ```python
 from sqlalchemy import Column, Integer, Text, func
-from database import Base
+from app.database.connection import Base
 
 class Summary(Base):
     __tablename__ = "summaries"
@@ -254,7 +254,7 @@ class Summary(Base):
 DB 연결 설정은 아래와 같습니다.
 
 ```python
-# database.py
+# database/connection.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -275,7 +275,7 @@ Base = declarative_base()
 
 ```python
 from sqlalchemy import Column, Integer, Text, func
-from database import Base
+from app.database.connection import Base
 
 class Summary(Base):
     __tablename__ = "summaries"
@@ -292,7 +292,7 @@ class Summary(Base):
 DB 연결 설정도 async 엔진으로 바뀝니다.
 
 ```python
-# database.py
+# database/connection.py
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 

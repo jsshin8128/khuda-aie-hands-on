@@ -16,7 +16,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models
+from app.domain import summary as models
 
 
 async def save(db: AsyncSession, row: models.Summary) -> models.Summary:

@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, Text, text
 
-from app.database import Base
+from app.database.connection import Base
 
 
 class Summary(Base):

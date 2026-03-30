@@ -18,7 +18,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app import database, models
+from app.database import connection as database
+from app.domain import summary as models
 
 
 @asynccontextmanager
@@ -52,5 +53,5 @@ def health():
 # TODO [2] Router 를 등록하세요. 4주차와 동일합니다.
 #
 #   힌트:
-#     from app.routers.summarize import router
+#     from app.controllers.summary_controller import router
 #     app.include_router(router)

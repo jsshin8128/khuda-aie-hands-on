@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app import database, models
-from app.routers.summarize_solution import router
+from app.database import connection as database
+from app.domain import summary as models
+from app.controllers.summary_controller_solution import router
 
 
 @asynccontextmanager

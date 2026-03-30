@@ -89,7 +89,7 @@
 **구현 포인트:**
 
 ```
-Router      → HTTP만 담당 (request 수신, status code 결정, response 반환)
+Controller  → HTTP만 담당 (request 수신, status code 결정, response 반환)
 Service     → 업무 흐름 담당 (프롬프트 조립, LLM 호출, JSON 파싱, 검증 후 저장)
 Repository  → DB 접근만 담당 (세션, 쿼리, 저장/조회)
 ```
@@ -165,30 +165,38 @@ app/
 ```
 app/
 ├── main.py
-├── routers/
-│   └── summarize.py
+├── controllers/
+│   └── summary_controller.py
 ├── services/
 │   └── summary_service.py
 ├── repositories/
 │   └── summary_repository.py
-├── models.py
-├── schemas.py
-└── database.py
+├── domain/
+│   └── summary.py
+├── dto/
+│   ├── summary_request_dto.py
+│   └── summary_response_dto.py
+└── database/
+    └── connection.py
 ```
 
 ### 5주차
 
 ```
-app/                        # 4주차 구조와 동일
+app/
 ├── main.py                 # async 라우터 전환
-├── routers/
-│   └── summarize.py        # async def, 신규 엔드포인트 추가
+├── controllers/
+│   └── summary_controller.py   # async def, 신규 엔드포인트 추가
 ├── services/
-│   └── summary_service.py  # await llm.ainvoke(), fetch_url(), asyncio.gather
+│   └── summary_service.py      # await llm.ainvoke(), fetch_url(), asyncio.gather
 ├── repositories/
-│   └── summary_repository.py  # async 세션
-├── schemas.py              # SummaryURLRequest, BatchURLRequest, BatchSummaryResponse 추가
-├── models.py               # url 컬럼 추가
-└── database.py             # aiosqlite 엔진 (SQLite async 드라이버)
+│   └── summary_repository.py   # async 세션
+├── domain/
+│   └── summary.py              # url 컬럼 추가
+├── dto/
+│   ├── summary_request_dto.py  # SummaryURLRequest, BatchURLRequest 추가
+│   └── summary_response_dto.py # BatchSummaryResponse 추가
+└── database/
+    └── connection.py           # aiosqlite 엔진 (SQLite async 드라이버)
 ```
 

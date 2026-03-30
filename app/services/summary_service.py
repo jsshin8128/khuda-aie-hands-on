@@ -24,7 +24,16 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models, schemas
+from app.domain import summary as models
+from app.dto.summary_request_dto import BatchSummaryRequest, SummaryRequest
+from app.dto.summary_response_dto import (
+    BatchSummaryResponse,
+    SummaryDetailResponse,
+    SummaryListItem,
+    SummaryMeta,
+    SummaryResponse,
+    SummaryResponseWithId,
+)
 from app.repositories import summary_repository
 
 load_dotenv()
@@ -100,7 +109,7 @@ def _created_at_to_iso(created_at: str) -> str:
     return created_at.replace(" ", "T", 1) + "Z" if created_at and " " in created_at else (created_at or "")
 
 
-async def create_summary(body: schemas.SummaryRequest, db: AsyncSession) -> schemas.SummaryResponseWithId:
+async def create_summary(body: SummaryRequest, db: AsyncSession) -> SummaryResponseWithId:
     # TODO [4] URL 크롤링 → LLM 호출 → Pydantic 검증 → DB 저장 → 반환
     #
     #   ① URL 크롤링
@@ -115,13 +124,13 @@ async def create_summary(body: schemas.SummaryRequest, db: AsyncSession) -> sche
     #
     #   ④ Pydantic 검증
     #      now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    #      response = schemas.SummaryResponse(
+    #      response = SummaryResponse(
     #          recommended_for=data["recommended_for"],
     #          difficulty=data["difficulty"],
     #          read_time=data["read_time"],
     #          summary=data["summary"],
     #          key_points=data["key_points"],
-    #          meta=schemas.SummaryMeta(prompt_version="v2.0", generated_at=now),
+    #          meta=SummaryMeta(prompt_version="v2.0", generated_at=now),
     #      )
     #
     #   ⑤ DB 저장
@@ -135,11 +144,11 @@ async def create_summary(body: schemas.SummaryRequest, db: AsyncSession) -> sche
     #      await summary_repository.save(db, row)
     #
     #   ⑥ id 를 포함해 반환
-    #      return schemas.SummaryResponseWithId(id=row.id, **response.model_dump())
+    #      return SummaryResponseWithId(id=row.id, **response.model_dump())
     raise NotImplementedError("TODO [4]")
 
 
-async def list_summaries(db: AsyncSession) -> list[schemas.SummaryListItem]:
+async def list_summaries(db: AsyncSession) -> list[SummaryListItem]:
     # TODO [5] 전체 목록을 조회해 SummaryListItem 리스트로 변환하세요.
     #
     #   4주차와 달리 created_at 대신 url 을 반환합니다.
@@ -147,13 +156,13 @@ async def list_summaries(db: AsyncSession) -> list[schemas.SummaryListItem]:
     #   힌트:
     #     rows = await summary_repository.list_all(db)
     #     return [
-    #         schemas.SummaryListItem(id=r.id, title=r.title, url=r.url or "")
+    #         SummaryListItem(id=r.id, title=r.title, url=r.url or "")
     #         for r in rows
     #     ]
     raise NotImplementedError("TODO [5]")
 
 
-async def get_summary(id: int, db: AsyncSession) -> schemas.SummaryDetailResponse:
+async def get_summary(id: int, db: AsyncSession) -> SummaryDetailResponse:
     # TODO [6] id 로 단건을 조회하세요.
     #
     #   힌트:
@@ -162,7 +171,7 @@ async def get_summary(id: int, db: AsyncSession) -> schemas.SummaryDetailRespons
     #         raise HTTPException(status_code=404, detail="Summary not found")
     #
     #     data = json.loads(row.output_json)
-    #     return schemas.SummaryDetailResponse(
+    #     return SummaryDetailResponse(
     #         id=row.id,
     #         title=row.title,
     #         url=row.url or "",
@@ -172,13 +181,13 @@ async def get_summary(id: int, db: AsyncSession) -> schemas.SummaryDetailRespons
     #         read_time=data["read_time"],
     #         summary=data["summary"],
     #         key_points=data["key_points"],
-    #         meta=schemas.SummaryMeta(**data["meta"]),
+    #         meta=SummaryMeta(**data["meta"]),
     #         created_at=_created_at_to_iso(row.created_at),
     #     )
     raise NotImplementedError("TODO [6]")
 
 
-async def create_batch(body: schemas.BatchSummaryRequest, db: AsyncSession) -> schemas.BatchSummaryResponse:
+async def create_batch(body: BatchSummaryRequest, db: AsyncSession) -> BatchSummaryResponse:
     # TODO [7] 여러 URL 을 asyncio.gather 로 동시에 처리하세요.
     #
     #   핵심 아이디어:
@@ -188,7 +197,7 @@ async def create_batch(body: schemas.BatchSummaryRequest, db: AsyncSession) -> s
     #
     #   힌트:
     #     async def process_one(url: str):
-    #         single_body = schemas.SummaryRequest(url=url, output_format=body.output_format)
+    #         single_body = SummaryRequest(url=url, output_format=body.output_format)
     #         return await create_summary(single_body, db)
     #
     #     tasks = [process_one(url) for url in body.urls]
@@ -201,5 +210,5 @@ async def create_batch(body: schemas.BatchSummaryRequest, db: AsyncSession) -> s
     #         else:
     #             results.append(outcome)
     #
-    #     return schemas.BatchSummaryResponse(results=results, failed=failed)
+    #     return BatchSummaryResponse(results=results, failed=failed)
     raise NotImplementedError("TODO [7]")
