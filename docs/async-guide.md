@@ -135,34 +135,42 @@ for url, result in zip(urls, results):
 
 ---
 
-## 5. httpx: requests의 async 버전
+## 5. Playwright: JS 렌더링까지 처리하는 async 크롤러
 
-`requests`는 동기 라이브러리입니다. `await`를 쓸 수 없어서 async 함수 안에서 쓰면 이벤트 루프가 블로킹됩니다.
-
-```python
-# 이렇게 하면 안 됩니다
-async def fetch(url):
-    response = requests.get(url)   # 블로킹! 이벤트 루프가 멈춤
-    return response.text
-```
-
-`httpx`는 `requests`와 거의 동일한 API를 제공하면서 async를 지원합니다.
+`requests`나 `httpx`는 정적 HTML만 받아옵니다. React·Vue 같은 SPA(Single Page Application)는 JavaScript가 실행된 후에 본문이 채워지기 때문에, 정적 크롤러로는 네비게이션 메뉴만 가져오는 경우가 많습니다.
 
 ```python
-import httpx
-
+# httpx로 SPA를 크롤링하면 이렇게 됩니다
 async def fetch(url):
     async with httpx.AsyncClient() as client:
-        response = await client.get(url, timeout=10.0)
-        response.raise_for_status()   # 4xx, 5xx면 예외 발생
+        response = await client.get(url)
+    # JS 실행 전 껍데기만 옴 → 본문 없음
     return response.text
 ```
 
-| | requests | httpx |
-|---|---|---|
-| 동기 | O | O |
-| async | X | O |
-| API 유사성 | — | 거의 동일 |
+`Playwright`는 실제 Chromium 브라우저를 실행해 JS 렌더링까지 완료한 뒤 HTML을 가져옵니다.
+
+```python
+from playwright.async_api import async_playwright
+
+async def fetch(url):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto(url, wait_until="networkidle")  # JS 렌더링 완료까지 대기
+        html = await page.content()
+        await browser.close()
+    return html
+```
+
+`wait_until="networkidle"` 은 네트워크 요청이 잠잠해질 때까지 기다린다는 의미입니다. 이 시점이면 SPA의 본문 로딩도 완료됩니다.
+
+| | requests | httpx | Playwright |
+|---|---|---|---|
+| 동기 | O | O | X |
+| async | X | O | O |
+| JS 렌더링 | X | X | O |
+| SPA 지원 | X | X | O |
 
 ---
 
@@ -210,11 +218,12 @@ async def save(db: AsyncSession, row: Summary) -> Summary:
 # 4주차
 result = chain.invoke({"title": ..., "content_text": ...})
 
-# 5주차
-result = await chain.ainvoke({"title": ..., "content_text": ...})
+# 5주차: ainvoke + Playwright 크롤링
+content_text, title = await fetch_url(url)   # Playwright로 JS 렌더링 후 본문 추출
+result = await chain.ainvoke({"title": title or "", "content_text": content_text})
 ```
 
-LangChain의 `ainvoke`는 `invoke`의 async 버전입니다.
+LangChain의 `ainvoke`는 `invoke`의 async 버전입니다. `fetch_url`은 Playwright를 사용하기 때문에 SPA 사이트도 본문을 정확히 가져올 수 있습니다.
 
 ### 배치 처리 (핵심 패턴)
 
@@ -246,7 +255,7 @@ async def create_batch(request: BatchURLRequest, db: AsyncSession):
 | `async def` | 비동기 함수 선언 | 라우터, 서비스, 리포지토리 모두 `async def`로 전환 |
 | `await` | 여기서 기다리는 동안 다른 작업 허용 | `await llm.ainvoke()`, `await db.commit()` 등 |
 | `asyncio.gather` | 여러 코루틴을 동시에 실행 | 배치 요청에서 URL 5개를 동시에 처리 |
-| `httpx` | async HTTP 클라이언트 | URL 크롤링 |
+| `Playwright` | JS 렌더링 async 크롤러 | URL 크롤링 (SPA 포함) |
 | `aiosqlite` | SQLite async 드라이버 | DB 접근 비동기화 |
 
 비동기는 코드를 복잡하게 만들기도 합니다. 하지만 LLM 호출처럼 I/O 대기가 긴 작업이 여러 개 동시에 일어날 때, 그 효과는 명확합니다. URL 5개를 순차 처리하면 20초, 동시 처리하면 4초입니다.

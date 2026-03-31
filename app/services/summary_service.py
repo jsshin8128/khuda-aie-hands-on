@@ -1,7 +1,7 @@
 """5주차: Service 레이어 — URL 크롤링 + 비동기 LLM 호출.
 
 4주차와 달라지는 점:
-  1. fetch_url()     — httpx 로 URL 을 크롤링해 본문 텍스트를 추출합니다.
+  1. fetch_url()     — Playwright 로 브라우저를 실행해 JS 렌더링 후 본문을 추출합니다.
   2. 프롬프트 v2.0   — recommended_for, difficulty, read_time 세 필드가 추가됩니다.
   3. async def      — 모든 함수가 비동기가 됩니다.
   4. ainvoke()      — chain.invoke() → await chain.ainvoke()
@@ -44,10 +44,17 @@ load_dotenv()
 #   URL 을 받아 페이지 HTML 을 내려받고, trafilatura 로 본문 텍스트와 제목을 추출합니다.
 #   (본문, 제목) 튜플을 반환합니다. 제목 추출에 실패하면 None 을 반환합니다.
 #
-#   httpx.AsyncClient 사용법:
-#     async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-#         response = await client.get(url)
-#         response.raise_for_status()  # 4xx / 5xx 면 예외 발생
+#   httpx 는 정적 HTML 만 받아오기 때문에, React/Vue 같은 SPA 사이트는 본문이 비어있습니다.
+#   Playwright 는 실제 브라우저를 실행해 JS 까지 렌더링한 뒤 HTML 을 가져옵니다.
+#
+#   Playwright 사용법:
+#     from playwright.async_api import async_playwright
+#     async with async_playwright() as p:
+#         browser = await p.chromium.launch()
+#         page = await browser.new_page()
+#         await page.goto(url, wait_until="networkidle")  # JS 렌더링 완료까지 대기
+#         html = await page.content()
+#         await browser.close()
 #
 #   trafilatura 사용법:
 #     import trafilatura
@@ -57,17 +64,35 @@ load_dotenv()
 #
 #   힌트:
 #     async def fetch_url(url: str) -> tuple[str, str | None]:
-#         import httpx, trafilatura
-#         async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-#             response = await client.get(url)
-#             response.raise_for_status()
-#         html = response.text
+#         from playwright.async_api import async_playwright
+#         import trafilatura
+#         async with async_playwright() as p:
+#             browser = await p.chromium.launch()
+#             page = await browser.new_page()
+#             await page.goto(url, wait_until="networkidle")
+#             html = await page.content()
+#             await browser.close()
 #         content_text = trafilatura.extract(html) or ""
+#         # null 바이트·제어 문자 제거 — OpenAI API JSON 직렬화 오류 방지
+#         content_text = "".join(ch for ch in content_text if ch >= " " or ch in "\n\t")
 #         metadata = trafilatura.extract_metadata(html)
 #         title = metadata.title if metadata else None
 #         return content_text, title
 async def fetch_url(url: str) -> tuple[str, str | None]:
-    raise NotImplementedError("TODO [1]")
+    from playwright.async_api import async_playwright
+    import trafilatura
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto(url, wait_until="networkidle")
+        html = await page.content()
+        await browser.close()
+    content_text = trafilatura.extract(html) or ""
+    # null 바이트·제어 문자 제거 — OpenAI API JSON 직렬화 오류 방지
+    content_text = "".join(ch for ch in content_text if ch >= " " or ch in "\n\t")
+    metadata = trafilatura.extract_metadata(html)
+    title = metadata.title if metadata else None
+    return content_text, title
 
 
 # TODO [2] 프롬프트 템플릿을 정의하세요 (버전 v2.0).

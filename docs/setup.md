@@ -250,6 +250,13 @@ pip install -r requirements.txt
 pip list
 ```
 
+**5주차부터는 Playwright 브라우저도 별도로 설치해야 합니다.**  
+`pip install`은 Python 패키지만 설치하고, 실제 Chromium 브라우저는 아래 명령으로 따로 받아야 합니다.
+
+```bash
+playwright install chromium
+```
+
 ---
 
 ## 6. 서버 실행

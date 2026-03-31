@@ -3,7 +3,7 @@
 4주차와 달라지는 점:
   1. async def    — 컨트롤러 함수가 모두 비동기가 됩니다.
   2. get_db()     — 동기 SessionLocal → async with AsyncSessionLocal()
-  3. /summarize   — Form 방식 → JSON 방식, 입력이 url 로 바뀝니다.
+  3. /summarize   — 입력이 url(Form) 로 바뀝니다.
   4. /summarize/batch — 여러 URL 을 동시에 처리하는 신규 엔드포인트입니다.
 
 왜 async def 가 필요한가?
@@ -13,7 +13,7 @@
 실습: TODO [1]~[5]를 순서대로 채우세요.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import connection as database
@@ -53,16 +53,24 @@ async def get_db():
 # TODO [2] POST /summarize 엔드포인트를 구현하세요.
 #
 #   4주차에서 달라지는 점:
-#     - Form 방식 → JSON 방식 (body: SummaryRequest)
+#     - Form 파라미터로 url 을 받습니다.
 #     - def → async def
 #     - summary_service.create_summary(body, db) → await summary_service.create_summary(body, db)
+#
+#   Form 파라미터 선언법:
+#     url: str = Form(...)                      — 필수 Form 필드
+#     output_format: str = Form("json")         — 기본값이 있는 Form 필드
+#
+#   Form 으로 받은 값으로 DTO 를 직접 생성해서 서비스에 넘깁니다.
 #
 #   힌트:
 #     @router.post("/summarize", response_model=SummaryResponseWithId)
 #     async def summarize(
-#         body: SummaryRequest,
+#         url: str = Form(...),
+#         output_format: str = Form("json"),
 #         db: AsyncSession = Depends(get_db),
 #     ) -> SummaryResponseWithId:
+#         body = SummaryRequest(url=url, output_format=output_format)
 #         return await summary_service.create_summary(body, db)
 
 
@@ -89,10 +97,16 @@ async def get_db():
 #      FastAPI 는 경로를 위에서부터 매칭하기 때문에 "batch" 가 id 로 해석될 수 있습니다.
 #      (지금은 GET /summarize/batch 가 아니라 POST 이므로 문제없지만, 습관을 들이세요.)
 #
+#   Form 으로 list[str] 받기:
+#     같은 필드명을 여러 번 보내면 리스트로 받을 수 있습니다.
+#     예: urls=https://a.com&urls=https://b.com
+#
 #   힌트:
 #     @router.post("/summarize/batch", response_model=BatchSummaryResponse)
 #     async def batch_summarize(
-#         body: BatchSummaryRequest,
+#         urls: list[str] = Form(...),
+#         output_format: str = Form("json"),
 #         db: AsyncSession = Depends(get_db),
 #     ) -> BatchSummaryResponse:
+#         body = BatchSummaryRequest(urls=urls, output_format=output_format)
 #         return await summary_service.create_batch(body, db)

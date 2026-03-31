@@ -1,6 +1,6 @@
 """5주차 정답: Controller 레이어 — async + 배치 엔드포인트 추가."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import connection as database
@@ -24,17 +24,21 @@ async def get_db():
 
 @router.post("/summarize", response_model=SummaryResponseWithId)
 async def summarize(
-    body: SummaryRequest,
+    url: str = Form(...),
+    output_format: str = Form("json"),
     db: AsyncSession = Depends(get_db),
 ) -> SummaryResponseWithId:
+    body = SummaryRequest(url=url, output_format=output_format)
     return await summary_service.create_summary(body, db)
 
 
 @router.post("/summarize/batch", response_model=BatchSummaryResponse)
 async def batch_summarize(
-    body: BatchSummaryRequest,
+    urls: list[str] = Form(...),
+    output_format: str = Form("json"),
     db: AsyncSession = Depends(get_db),
 ) -> BatchSummaryResponse:
+    body = BatchSummaryRequest(urls=urls, output_format=output_format)
     return await summary_service.create_batch(body, db)
 
 
