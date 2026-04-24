@@ -24,16 +24,8 @@ from app.domain import summary as models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # TODO [1] 서버 시작 시 summaries 테이블을 비동기 방식으로 생성하세요.
-    #
-    #   4주차(동기):
-    #     models.Base.metadata.create_all(bind=database.engine)
-    #
-    #   5주차(비동기):
-    #     async with database.engine.begin() as conn:
-    #         await conn.run_sync(models.Base.metadata.create_all)
-    #
-    #   힌트: 위 두 줄이 전부입니다.
+    async with database.engine.begin() as conn:
+        await conn.run_sync(models.Base.metadata.create_all)
     yield
 
 
@@ -50,8 +42,5 @@ def health():
     return {"status": "ok"}
 
 
-# TODO [2] Router 를 등록하세요. 4주차와 동일합니다.
-#
-#   힌트:
-#     from app.controllers.summary_controller import router
-#     app.include_router(router)
+from app.controllers.summary_controller import router
+app.include_router(router)
