@@ -24,18 +24,13 @@ DATABASE_URL = "sqlite+aiosqlite:///./summary.db"
 #
 #   힌트:
 #     engine = create_async_engine(DATABASE_URL)
-engine = None  # TODO [1]
+engine = create_async_engine(DATABASE_URL)
 
-
-# TODO [2] 비동기 세션 팩토리를 만드세요.
-#
-#   동기:   SessionLocal = sessionmaker(bind=engine)
-#   비동기: class_=AsyncSession 을 지정합니다.
-#          expire_on_commit=False 를 주면 커밋 후 객체를 다시 로드하지 않아도 됩니다.
-#
-#   힌트:
-#     AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
-AsyncSessionLocal = None  # TODO [2]
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
 
 # declarative_base 는 동기와 동일합니다. 변경 없음.

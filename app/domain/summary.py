@@ -15,14 +15,7 @@ class Summary(Base):
     __tablename__ = "summaries"
 
     id           = Column(Integer, primary_key=True, autoincrement=True)
-
-    # TODO [1] url 컬럼을 추가하세요.
-    #
-    #   사용자가 보낸 URL을 저장합니다. 크롤링에 실패했을 때를 대비해 nullable=True 로 둡니다.
-    #
-    #   힌트:
-    #     url = Column(Text, nullable=True)
-
+    url          = Column(Text, nullable=True)
     title        = Column(Text, nullable=True)
     content_text = Column(Text, nullable=False)
     output_json  = Column(Text, nullable=False)
