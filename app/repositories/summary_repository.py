@@ -20,46 +20,21 @@ from app.domain import summary as models
 
 
 async def save(db: AsyncSession, row: models.Summary) -> models.Summary:
-    # TODO [1] row 를 DB 에 저장하고 id, created_at 이 채워진 row 를 반환하세요.
-    #
-    #   4주차(동기):
-    #     db.add(row)
-    #     db.commit()
-    #     db.refresh(row)
-    #     return row
-    #
-    #   5주차(비동기): commit 과 refresh 앞에 await 를 붙입니다.
-    #
-    #   힌트:
-    #     db.add(row)
-    #     await db.commit()
-    #     await db.refresh(row)
-    #     return row
-    raise NotImplementedError("TODO [1]")
+    db.add(row)
+    await db.commit()
+    await db.refresh(row)
+    return row
 
 
 async def list_all(db: AsyncSession) -> list[models.Summary]:
-    # TODO [2] summaries 테이블 전체를 최신순으로 조회하세요.
-    #
-    #   4주차(동기):
-    #     return db.query(Summary).order_by(Summary.created_at.desc()).all()
-    #
-    #   5주차(비동기): select() 로 쿼리를 만들고 await db.execute() 로 실행합니다.
-    #
-    #   힌트:
-    #     result = await db.execute(
-    #         select(models.Summary).order_by(models.Summary.created_at.desc())
-    #     )
-    #     return result.scalars().all()
-    raise NotImplementedError("TODO [2]")
+    result = await db.execute(
+        select(models.Summary).order_by(models.Summary.created_at.desc())
+    )
+    return result.scalars().all()
 
 
 async def get_by_id(db: AsyncSession, id: int) -> models.Summary | None:
-    # TODO [3] id 로 단건을 조회하세요. 없으면 None 을 반환합니다.
-    #
-    #   힌트:
-    #     result = await db.execute(
-    #         select(models.Summary).filter(models.Summary.id == id)
-    #     )
-    #     return result.scalar_one_or_none()
-    raise NotImplementedError("TODO [3]")
+    result = await db.execute(
+        select(models.Summary).filter(models.Summary.id == id)
+    )
+    return result.scalar_one_or_none()
